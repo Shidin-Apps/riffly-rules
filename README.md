@@ -1,6 +1,6 @@
-# melovy-rules
+# riffly-rules
 
-Remotely updated YouTube adaptation layer for the Melovy iOS app. The app fetches
+Remotely updated YouTube adaptation layer for the Riffly iOS app. The app fetches
 these files through jsDelivr once a day, verifies the Ed25519 signature in
 `latest.json` and swaps them in atomically. Everything YouTube-specific lives
 here so a format change never needs an App Store release. Design: `../docs/TECH.md` §11.
@@ -18,7 +18,7 @@ jsDelivr serves straight from the repository.
 ## Layout
 
 ```
-src/extractor/   requests, parsers, player handling (plain ES modules, no DOM, network only via melovyFetch)
+src/extractor/   requests, parsers, player handling (plain ES modules, no DOM, network only via rifflyFetch)
 src/po_token/    BotGuard -> integrity token -> WebPO minter
 vendor/ejs/      yt-dlp/ejs solver (Unlicense) with meriyah (ISC) and astring (MIT)
 tests/           node --test parser tests + fixtures (real responses, tracking and IP scrubbed)
@@ -31,7 +31,7 @@ npm test              build + parser tests against tests/fixtures
 npm run capture       re-record fixtures from the live API
 npm run probe         live check: which player client yields a playable audio URL
 node tests/pot.mjs    live check of the PO token + cipher path (jsdom)
-./sign.sh <version>   test, then write a signed latest.json (key in ~/.melovy/, never in the repo)
+./sign.sh <version>   test, then write a signed latest.json (key in ~/.riffly/, never in the repo)
 ```
 
 ## Releasing
@@ -44,10 +44,10 @@ node tests/pot.mjs    live check of the PO token + cipher path (jsdom)
 ## Extractor contract (called from Swift)
 
 ```
-Melovy.configure(rulesJson)
-Melovy.request(kind, argsJson)          -> {endpoint, body, query?, client?}
-Melovy.parse(kind, responseJson, args)  -> normalized JSON
-Melovy.resolve(playerJson, optsJson)    -> Promise<{ok, kind: direct|hls, url, ...}>
-Melovy.webPlayerInfo()                  -> Promise<{playerId, signatureTimestamp}>
-melovyFetch(url, {method, headers, body}) -> Promise<{status, body}>   (provided by the host)
+Riffly.configure(rulesJson)
+Riffly.request(kind, argsJson)          -> {endpoint, body, query?, client?}
+Riffly.parse(kind, responseJson, args)  -> normalized JSON
+Riffly.resolve(playerJson, optsJson)    -> Promise<{ok, kind: direct|hls, url, ...}>
+Riffly.webPlayerInfo()                  -> Promise<{playerId, signatureTimestamp}>
+rifflyFetch(url, {method, headers, body}) -> Promise<{status, body}>   (provided by the host)
 ```

@@ -1,5 +1,5 @@
 // Writes latest.json: version manifest + Ed25519 signature over the file hashes.
-// The private key never lives in this repo (default: ~/.melovy/rules_signing.key).
+// The private key never lives in this repo (default: ~/.riffly/rules_signing.key).
 //   node sign.mjs --init            create the key pair if missing, print the public key
 //   node sign.mjs [version] [minAppBuild]
 import crypto from 'node:crypto';
@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-const keyPath = process.env.MELOVY_RULES_KEY || path.join(os.homedir(), '.melovy', 'rules_signing.key');
+const keyPath = process.env.RIFFLY_RULES_KEY || path.join(os.homedir(), '.riffly', 'rules_signing.key');
 const FILES = ['extractor.js', 'po_token.html', 'rules.json'];
 
 function loadKey() {

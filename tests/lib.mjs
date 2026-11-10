@@ -10,13 +10,13 @@ export const fixturesDir = path.join(root, 'tests', 'fixtures');
 
 export function loadExtractor() {
   const code = fs.readFileSync(path.join(root, 'extractor.js'), 'utf8');
-  const sandbox = { melovyFetch: nodeMelovyFetch, console };
-  new Function('globalThis', 'melovyFetch', 'console', code)(sandbox, nodeMelovyFetch, console);
-  sandbox.Melovy.configure(JSON.stringify(rules));
-  return sandbox.Melovy;
+  const sandbox = { rifflyFetch: nodeRifflyFetch, console };
+  new Function('globalThis', 'rifflyFetch', 'console', code)(sandbox, nodeRifflyFetch, console);
+  sandbox.Riffly.configure(JSON.stringify(rules));
+  return sandbox.Riffly;
 }
 
-export async function nodeMelovyFetch(url, opts = {}) {
+export async function nodeRifflyFetch(url, opts = {}) {
   const r = await fetch(url, { method: opts.method || 'GET', headers: opts.headers || {}, body: opts.body });
   return { status: r.status, body: await r.text() };
 }

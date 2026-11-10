@@ -1,11 +1,11 @@
 {
-  "version": 2,
-  "tag": "v2",
+  "version": 3,
+  "tag": "v3",
   "minAppBuild": 1,
   "files": {
-    "extractor.js": "b09aa6b1394ece48f56d0ae7f8328b4ec17a163df1d109a9151778119bcf7d42",
-    "po_token.html": "76e9083aa4af73c17719dee8810e73dd643cdad8317a4a2ced8f9857539688a2",
+    "extractor.js": "a0d99e1203ede84482ae302edea51b3c2df0c991b27cd8ad4333cf50e484423b",
+    "po_token.html": "79601049f3b9794dc82415e17014cdc6c5d54221075ef620d74feac56ba3c052",
     "rules.json": "cf22a0237501a439d8dcdeb689aaeeed5e991f8be9e15dc2cabcef5539441b3a"
   },
-  "sig": "cut6CJTxwsMnKTqI6IUTq8p4wu0ZFRosiRfmvNLI2XoGaXm5BhicB/4L/YlwnB0PsFjj6t7pOd+/ugsVX1p5Bw=="
+  "sig": "RvJxzr/9nzS1beZLJ0bIlbVm+d9IazxqFFwhYuudB5BiGVBbfpUPCvDcmrejGL65Zt4uXfc/YawraquCMP9QAQ=="
 }

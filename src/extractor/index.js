@@ -17,7 +17,7 @@ const parsers = {
   player: parsePlayer,
 };
 
-const Melovy = {
+const Riffly = {
   version: 1,
   configure(rulesJson) {
     setRules(typeof rulesJson === 'string' ? JSON.parse(rulesJson) : rulesJson);
@@ -46,4 +46,4 @@ const Melovy = {
   _pickHlsAudio: pickHlsAudio,
 };
 
-globalThis.Melovy = Melovy;
+globalThis.Riffly = Riffly;

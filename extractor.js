@@ -681,6 +681,104 @@ var jsc=function(e,n){"use strict";function t(e,n){if(Array.isArray(n))return!!A
     return compact({ text: text(shelfNode.description), source: text(shelfNode.footer) });
   }
 
+  // src/extractor/imports.js
+  function fill(template, vars) {
+    return String(template || "").replace(/\{(\w+)\}/g, (_, k) => encodeURIComponent(vars[k] == null ? "" : vars[k]));
+  }
+  function findEntity(obj, depth) {
+    if (!obj || typeof obj !== "object" || depth > 8) return null;
+    if (Array.isArray(obj.trackList)) return obj;
+    for (const k of Object.keys(obj)) {
+      const hit = findEntity(obj[k], depth + 1);
+      if (hit) return hit;
+    }
+    return null;
+  }
+  function parseSpotifyEmbed(html) {
+    const out = { ok: false, source: "spotify", name: null, tracks: [] };
+    if (typeof html !== "string") return out;
+    const m = html.match(/<script[^>]*id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+    if (!m) return out;
+    let data;
+    try {
+      data = JSON.parse(m[1]);
+    } catch (e) {
+      return out;
+    }
+    const entity = findEntity(data, 0);
+    if (!entity) return out;
+    out.name = entity.title || entity.name || null;
+    const albumName = entity.type === "album" ? out.name : null;
+    for (const t of entity.trackList) {
+      if (!t || typeof t.title !== "string" || !t.title) continue;
+      if (t.entityType && t.entityType !== "track") continue;
+      const track = { title: t.title, artist: typeof t.subtitle === "string" ? t.subtitle.replace(/ /g, " ") : "" };
+      if (albumName) track.album = albumName;
+      if (typeof t.duration === "number" && t.duration > 0) track.durationSec = Math.round(t.duration / 1e3);
+      out.tracks.push(track);
+    }
+    if (!out.tracks.length && entity.type === "track" && entity.title) {
+      const artist = (entity.artists || []).map((a) => a && a.name).filter(Boolean).join(", ") || entity.subtitle || "";
+      out.tracks.push({ title: entity.title, artist, durationSec: entity.duration ? Math.round(entity.duration / 1e3) : void 0 });
+    }
+    out.ok = out.tracks.length > 0;
+    return out;
+  }
+  function parseMusi(body) {
+    const out = { ok: false, source: "musi", name: null, tracks: [] };
+    let root = body;
+    try {
+      if (typeof root === "string") root = JSON.parse(root);
+    } catch (e) {
+      return out;
+    }
+    if (!root || typeof root !== "object") return out;
+    const success = root.success && typeof root.success === "object" ? root.success : root;
+    out.name = success.title || success.name || null;
+    let data = success.data;
+    try {
+      if (typeof data === "string") data = JSON.parse(data);
+    } catch (e) {
+      data = null;
+    }
+    const list = Array.isArray(data) ? data : data && Array.isArray(data.data) ? data.data : [];
+    for (const t of list) {
+      if (!t || typeof t !== "object") continue;
+      const videoId = t.video_id || t.videoId || t.id;
+      if (typeof videoId !== "string" || !/^[\w-]{11}$/.test(videoId)) continue;
+      const dur = Number(t.video_duration || t.duration || 0);
+      out.tracks.push({
+        videoId,
+        title: String(t.video_name || t.title || ""),
+        artist: String(t.video_creator || t.artist || ""),
+        durationSec: dur > 0 ? Math.round(dur) : void 0
+      });
+    }
+    out.ok = out.tracks.length > 0;
+    return out;
+  }
+  async function importList(url) {
+    const cfg = getRules().imports || {};
+    const text2 = String(url || "");
+    let m = cfg.spotify && text2.match(new RegExp(cfg.spotify.pattern, "i"));
+    if (m) {
+      const res = await rifflyFetch(fill(cfg.spotify.embedUrlTemplate, { type: m[1].toLowerCase(), id: m[2] }), { headers: cfg.spotify.headers || {} });
+      if (res.status !== 200) return { ok: false, source: "spotify", name: null, tracks: [], reason: "http " + res.status };
+      const out = parseSpotifyEmbed(res.body);
+      if (!out.ok) out.reason = "no tracks";
+      return out;
+    }
+    m = cfg.musi && text2.match(new RegExp(cfg.musi.pattern, "i"));
+    if (m) {
+      const res = await rifflyFetch(fill(cfg.musi.apiUrlTemplate, { id: m[1] }), { headers: cfg.musi.headers || {} });
+      if (res.status !== 200) return { ok: false, source: "musi", name: null, tracks: [], reason: "http " + res.status };
+      const out = parseMusi(res.body);
+      if (!out.ok) out.reason = "no tracks";
+      return out;
+    }
+    return { ok: false, source: null, name: null, tracks: [], reason: "unsupported link" };
+  }
+
   // src/extractor/player.js
   function parsePlayer(json) {
     const ps = json.playabilityStatus || {};
@@ -886,10 +984,12 @@ var jsc=function(e,n){"use strict";function t(e,n){if(Array.isArray(n))return!!A
     playlist: parsePlaylist,
     next: parseNext,
     lyrics: parseLyrics,
-    player: parsePlayer
+    player: parsePlayer,
+    spotifyEmbed: parseSpotifyEmbed,
+    musi: parseMusi
   };
   var Riffly = {
-    version: 1,
+    version: 2,
     configure(rulesJson) {
       setRules(typeof rulesJson === "string" ? JSON.parse(rulesJson) : rulesJson);
       return true;
@@ -913,6 +1013,10 @@ var jsc=function(e,n){"use strict";function t(e,n){if(Array.isArray(n))return!!A
     // -> Promise<JSON string>: {playerId, signatureTimestamp}
     webPlayerInfo() {
       return webPlayerInfo().then((r) => JSON.stringify(r));
+    },
+    // -> Promise<JSON string>: {ok, source, name, tracks:[...], reason?}
+    importList(url) {
+      return importList(url).then((r) => JSON.stringify(r));
     },
     _pickHlsAudio: pickHlsAudio
   };

@@ -1,6 +1,7 @@
 import { setRules } from './state.js';
 import { requests } from './requests.js';
 import * as P from './parsers.js';
+import { importList, parseSpotifyEmbed, parseMusi } from './imports.js';
 import { parsePlayer, resolve, webPlayerInfo, pickHlsAudio } from './player.js';
 
 const parsers = {
@@ -15,10 +16,12 @@ const parsers = {
   next: P.parseNext,
   lyrics: P.parseLyrics,
   player: parsePlayer,
+  spotifyEmbed: parseSpotifyEmbed,
+  musi: parseMusi,
 };
 
 const Riffly = {
-  version: 1,
+  version: 2,
   configure(rulesJson) {
     setRules(typeof rulesJson === 'string' ? JSON.parse(rulesJson) : rulesJson);
     return true;
@@ -42,6 +45,10 @@ const Riffly = {
   // -> Promise<JSON string>: {playerId, signatureTimestamp}
   webPlayerInfo() {
     return webPlayerInfo().then((r) => JSON.stringify(r));
+  },
+  // -> Promise<JSON string>: {ok, source, name, tracks:[...], reason?}
+  importList(url) {
+    return importList(url).then((r) => JSON.stringify(r));
   },
   _pickHlsAudio: pickHlsAudio,
 };

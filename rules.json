@@ -264,5 +264,23 @@
     "shareUrlTemplate": "https://music.youtube.com/watch?v={id}",
     "browseShareUrlTemplate": "https://music.youtube.com/browse/{id}",
     "playlistShareUrlTemplate": "https://music.youtube.com/playlist?list={id}"
+  },
+  "imports": {
+    "spotify": {
+      "pattern": "open\\.spotify\\.com/(?:intl-[\\w-]+/)?(?:embed/)?(playlist|album|track)/(\\w+)",
+      "embedUrlTemplate": "https://open.spotify.com/embed/{type}/{id}",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+        "Accept-Language": "en"
+      }
+    },
+    "musi": {
+      "pattern": "feelthemusi\\.com/(?:playlist/)?(\\w+)",
+      "apiUrlTemplate": "https://feelthemusi.com/api/v4/playlists/fetch/{id}",
+      "headers": {}
+    },
+    "youtube": {
+      "pattern": "(?:[?&]list=|^)((?:PL|OLAK5uy_|RD|UU|FL|VL)[\\w-]{10,})"
+    }
   }
 }

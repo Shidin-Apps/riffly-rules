@@ -185,8 +185,39 @@ test('hls audio rendition choice', () => {
   assert.equal(T._pickHlsAudio('#EXTM3U\n#EXT-X-STREAM-INF:BANDWIDTH=1\nhttps://x/v', 128), null);
 });
 
+test('import: spotify embed page', () => {
+  const html = JSON.parse(raw('spotify_embed')).html;
+  const out = JSON.parse(T.parse('spotifyEmbed', JSON.stringify(html), '{}'));
+  assert.equal(out.ok, true);
+  assert.equal(out.source, 'spotify');
+  assert.ok(out.name);
+  assert.equal(out.tracks.length, 8);
+  for (const t of out.tracks) {
+    assert.ok(t.title && t.artist, 'title + artist');
+    assert.ok(t.durationSec > 30 && t.durationSec < 1200, 'duration in seconds');
+  }
+  assert.equal(JSON.parse(T.parse('spotifyEmbed', JSON.stringify('<html></html>'), '{}')).ok, false);
+});
+
+test('import: musi playlist payloads', () => {
+  const inner = { data: [{ video_id: 'dQw4w9WgXcQ', video_name: 'Song', video_creator: 'Artist', video_duration: 213 }, { video_id: 'bad' }] };
+  for (const payload of [{ success: { title: 'Mix', data: JSON.stringify(inner) } }, { success: { title: 'Mix', data: inner } }]) {
+    const out = JSON.parse(T.parse('musi', JSON.stringify(payload), '{}'));
+    assert.equal(out.ok, true);
+    assert.equal(out.name, 'Mix');
+    assert.deepEqual(out.tracks, [{ videoId: 'dQw4w9WgXcQ', title: 'Song', artist: 'Artist', durationSec: 213 }]);
+  }
+  assert.equal(JSON.parse(T.parse('musi', JSON.stringify({ error: 'No playlist was found matching this code.' }), '{}')).ok, false);
+});
+
+test('import: unsupported link resolves with a reason', async () => {
+  const out = JSON.parse(await T.importList('https://example.com/x'));
+  assert.equal(out.ok, false);
+  assert.equal(out.reason, 'unsupported link');
+});
+
 test('lenient: garbage in, empty out, no throw', () => {
-  for (const kind of ['home', 'charts', 'browse', 'search', 'suggestions', 'album', 'artist', 'playlist', 'next', 'lyrics', 'player']) {
+  for (const kind of ['home', 'charts', 'browse', 'search', 'suggestions', 'album', 'artist', 'playlist', 'next', 'lyrics', 'player', 'spotifyEmbed', 'musi']) {
     for (const junk of ['{}', '{"contents":{"singleColumnBrowseResultsRenderer":{"tabs":[{"tabRenderer":{"content":{"sectionListRenderer":{"contents":[{"somethingNewRenderer":{}},{"musicCarouselShelfRenderer":{"contents":[{"musicTwoRowItemRenderer":{}}]}}]}}}}]}}}', '{"contents":[1,2,3]}']) {
       assert.doesNotThrow(() => T.parse(kind, junk, '{}'), kind);
     }

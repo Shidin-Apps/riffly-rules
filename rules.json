@@ -1,0 +1,268 @@
+{
+  "schema": 1,
+  "innertube": {
+    "query": "prettyPrint=false",
+    "catalogClient": "WEB_REMIX",
+    "playerOrder": [
+      "VISIONOS",
+      "TV_SIMPLY",
+      "IOS",
+      "ANDROID_VR",
+      "WEB_REMIX"
+    ],
+    "coldStartOrder": [
+      "VISIONOS",
+      "IOS",
+      "ANDROID_VR"
+    ],
+    "playerScriptIndexUrl": "https://www.youtube.com/iframe_api",
+    "playerScriptUrlTemplate": "https://www.youtube.com/s/player/{id}/player_ias.vflset/en_US/base.js",
+    "clients": {
+      "WEB_REMIX": {
+        "host": "music.youtube.com",
+        "nameId": "67",
+        "context": {
+          "clientName": "WEB_REMIX",
+          "clientVersion": "1.20260707.12.00"
+        },
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+        "headers": {
+          "Origin": "https://music.youtube.com",
+          "Referer": "https://music.youtube.com/"
+        },
+        "requiresPoToken": true,
+        "requiresLogin": false,
+        "requiresJsPlayer": true,
+        "poTokenBinding": "visitorData"
+      },
+      "VISIONOS": {
+        "host": "www.youtube.com",
+        "nameId": "101",
+        "context": {
+          "clientName": "VISIONOS",
+          "clientVersion": "1.02",
+          "deviceMake": "Apple",
+          "deviceModel": "RealityDevice17,1",
+          "osName": "visionOS",
+          "osVersion": "26.5.23O471",
+          "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_7_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
+        },
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_7_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15",
+        "headers": {},
+        "requiresPoToken": false,
+        "requiresLogin": false,
+        "requiresJsPlayer": false,
+        "poTokenBinding": "visitorData"
+      },
+      "IOS": {
+        "host": "www.youtube.com",
+        "nameId": "5",
+        "context": {
+          "clientName": "IOS",
+          "clientVersion": "21.26.4",
+          "deviceMake": "Apple",
+          "deviceModel": "iPhone16,2",
+          "osName": "iPhone",
+          "osVersion": "18.3.2.22D82",
+          "userAgent": "com.google.ios.youtube/21.26.4 (iPhone16,2; U; CPU iOS 18_3_2 like Mac OS X;)"
+        },
+        "userAgent": "com.google.ios.youtube/21.26.4 (iPhone16,2; U; CPU iOS 18_3_2 like Mac OS X;)",
+        "headers": {},
+        "requiresPoToken": false,
+        "requiresLogin": false,
+        "requiresJsPlayer": false,
+        "poTokenBinding": "visitorData"
+      },
+      "ANDROID_VR": {
+        "host": "www.youtube.com",
+        "nameId": "28",
+        "context": {
+          "clientName": "ANDROID_VR",
+          "clientVersion": "1.65.10",
+          "deviceMake": "Oculus",
+          "deviceModel": "Quest 3",
+          "androidSdkVersion": 32,
+          "osName": "Android",
+          "osVersion": "12L",
+          "userAgent": "com.google.android.apps.youtube.vr.oculus/1.65.10 (Linux; U; Android 12L; eureka-user Build/SQ3A.220605.009.A1) gzip"
+        },
+        "userAgent": "com.google.android.apps.youtube.vr.oculus/1.65.10 (Linux; U; Android 12L; eureka-user Build/SQ3A.220605.009.A1) gzip",
+        "headers": {},
+        "requiresPoToken": false,
+        "requiresLogin": false,
+        "requiresJsPlayer": false,
+        "poTokenBinding": "visitorData"
+      },
+      "TV_SIMPLY": {
+        "host": "www.youtube.com",
+        "nameId": "75",
+        "context": {
+          "clientName": "TVHTML5_SIMPLY",
+          "clientVersion": "1.0"
+        },
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+        "headers": {
+          "Origin": "https://www.youtube.com"
+        },
+        "requiresPoToken": true,
+        "requiresLogin": false,
+        "requiresJsPlayer": true,
+        "poTokenBinding": "visitorData"
+      },
+      "TVHTML5": {
+        "host": "www.youtube.com",
+        "nameId": "7",
+        "context": {
+          "clientName": "TVHTML5",
+          "clientVersion": "7.20260707.07.00",
+          "userAgent": "Mozilla/5.0 (ChromiumStylePlatform) Cobalt/25.lts.30.1034943-gold (unlike Gecko), Unknown_TV_Unknown_0/Unknown (Unknown, Unknown)"
+        },
+        "userAgent": "Mozilla/5.0 (ChromiumStylePlatform) Cobalt/25.lts.30.1034943-gold (unlike Gecko), Unknown_TV_Unknown_0/Unknown (Unknown, Unknown)",
+        "headers": {},
+        "requiresPoToken": true,
+        "requiresLogin": true,
+        "requiresJsPlayer": true,
+        "poTokenBinding": "visitorData"
+      }
+    },
+    "browse": {
+      "home": "FEmusic_home",
+      "charts": "FEmusic_charts",
+      "playlistPrefix": "VL"
+    },
+    "searchParams": {
+      "songs": "EgWKAQIIAWoMEA4QChADEAQQCRAF",
+      "videos": "EgWKAQIQAWoMEA4QChADEAQQCRAF",
+      "albums": "EgWKAQIYAWoMEA4QChADEAQQCRAF",
+      "artists": "EgWKAQIgAWoMEA4QChADEAQQCRAF",
+      "playlists": "EgWKAQIoAWoMEA4QChADEAQQCRAF"
+    },
+    "fallbackPaths": {
+      "searchSections": [
+        "contents",
+        "tabbedSearchResultsRenderer",
+        "tabs",
+        0,
+        "tabRenderer",
+        "content",
+        "sectionListRenderer",
+        "contents"
+      ],
+      "searchShelf": "musicShelfRenderer",
+      "searchRow": "musicResponsiveListItemRenderer",
+      "rowVideoId": [
+        "playlistItemData",
+        "videoId"
+      ],
+      "rowColumns": "flexColumns",
+      "rowColumnText": [
+        "musicResponsiveListItemFlexColumnRenderer",
+        "text",
+        "runs"
+      ],
+      "rowThumbnails": [
+        "thumbnail",
+        "musicThumbnailRenderer",
+        "thumbnail",
+        "thumbnails"
+      ],
+      "playerStatus": [
+        "playabilityStatus",
+        "status"
+      ],
+      "playerHls": [
+        "streamingData",
+        "hlsManifestUrl"
+      ],
+      "playerAdaptive": [
+        "streamingData",
+        "adaptiveFormats"
+      ],
+      "playerExpires": [
+        "streamingData",
+        "expiresInSeconds"
+      ],
+      "playerReason": [
+        "playabilityStatus",
+        "reason"
+      ],
+      "formatMime": "mimeType",
+      "formatUrl": "url",
+      "formatBitrate": "bitrate",
+      "formatItag": "itag",
+      "audioMimePrefix": "audio/mp4",
+      "visitorData": [
+        "responseContext",
+        "visitorData"
+      ]
+    }
+  },
+  "poToken": {
+    "requestKey": "O43z0dpjhgX20SCx4KAo",
+    "pageOrigin": "https://www.youtube.com/",
+    "ttlFallbackSeconds": 21600,
+    "notes": "Token is minted per binding by po_token.html; see clients[*].poTokenBinding."
+  },
+  "thumbnails": {
+    "resize": [
+      {
+        "hostSuffix": "googleusercontent.com",
+        "pattern": "=w\\d+-h\\d+",
+        "template": "=w{w}-h{h}"
+      },
+      {
+        "hostSuffix": "ggpht.com",
+        "pattern": "=s\\d+",
+        "template": "=s{w}"
+      }
+    ]
+  },
+  "wikipedia": {
+    "summaryUrlTemplate": "https://{lang}.wikipedia.org/api/rest_v1/page/summary/{title}"
+  },
+  "webplayer": {
+    "blockList": [],
+    "skipSelectors": [
+      ".ytp-ad-skip-button",
+      ".ytp-ad-skip-button-modern",
+      ".ytp-ad-overlay-close-button"
+    ]
+  },
+  "messages": {
+    "catalogFormatChanged": "YouTube changed its catalog format. An update is on the way.",
+    "streamBlocked": "YouTube is refusing playback right now. Try again in a few minutes."
+  },
+  "links": {
+    "patterns": [
+      {
+        "kind": "playlist",
+        "pattern": "youtube\\.com/playlist\\?(?:[^#]*&)?list=([\\w-]+)"
+      },
+      {
+        "kind": "album",
+        "pattern": "music\\.youtube\\.com/browse/(MPREb_[\\w-]+)"
+      },
+      {
+        "kind": "artist",
+        "pattern": "youtube\\.com/channel/(UC[\\w-]+)"
+      },
+      {
+        "kind": "video",
+        "pattern": "(?:youtube\\.com/watch\\?(?:[^#]*&)?v=|youtu\\.be/|youtube\\.com/shorts/|youtube\\.com/embed/)([\\w-]{11})"
+      },
+      {
+        "kind": "spotify",
+        "pattern": "open\\.spotify\\.com/(?:intl-[\\w-]+/)?(?:playlist|album|track)/(\\w+)"
+      },
+      {
+        "kind": "musi",
+        "pattern": "feelthemusi\\.com/playlist/(\\w+)"
+      }
+    ],
+    "watchUrlTemplate": "https://www.youtube.com/watch?v={id}",
+    "appWatchUrlTemplate": "youtube://watch?v={id}",
+    "shareUrlTemplate": "https://music.youtube.com/watch?v={id}",
+    "browseShareUrlTemplate": "https://music.youtube.com/browse/{id}",
+    "playlistShareUrlTemplate": "https://music.youtube.com/playlist?list={id}"
+  }
+}

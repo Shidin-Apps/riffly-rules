@@ -1,0 +1,19 @@
+{
+  "name": "tonik-rules",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Remotely updated YouTube adaptation layer for the Tonik iOS app",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node build.mjs && node --test tests/*.test.mjs",
+    "capture": "node tests/capture.mjs",
+    "probe": "node tests/probe.mjs",
+    "sign": "node sign.mjs"
+  },
+  "devDependencies": {
+    "bgutils-js": "^4.0.3",
+    "esbuild": "^0.28.2",
+    "jsdom": "^27.0.1"
+  }
+}

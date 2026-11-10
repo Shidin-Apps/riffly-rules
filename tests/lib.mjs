@@ -10,13 +10,13 @@ export const fixturesDir = path.join(root, 'tests', 'fixtures');
 
 export function loadExtractor() {
   const code = fs.readFileSync(path.join(root, 'extractor.js'), 'utf8');
-  const sandbox = { tonikFetch: nodeTonikFetch, console };
-  new Function('globalThis', 'tonikFetch', 'console', code)(sandbox, nodeTonikFetch, console);
-  sandbox.Tonik.configure(JSON.stringify(rules));
-  return sandbox.Tonik;
+  const sandbox = { melovyFetch: nodeMelovyFetch, console };
+  new Function('globalThis', 'melovyFetch', 'console', code)(sandbox, nodeMelovyFetch, console);
+  sandbox.Melovy.configure(JSON.stringify(rules));
+  return sandbox.Melovy;
 }
 
-export async function nodeTonikFetch(url, opts = {}) {
+export async function nodeMelovyFetch(url, opts = {}) {
   const r = await fetch(url, { method: opts.method || 'GET', headers: opts.headers || {}, body: opts.body });
   return { status: r.status, body: await r.text() };
 }

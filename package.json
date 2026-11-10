@@ -1,9 +1,9 @@
 {
-  "name": "tonik-rules",
+  "name": "melovy-rules",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Remotely updated YouTube adaptation layer for the Tonik iOS app",
+  "description": "Remotely updated YouTube adaptation layer for the Melovy iOS app",
   "scripts": {
     "build": "node build.mjs",
     "test": "node build.mjs && node --test tests/*.test.mjs",

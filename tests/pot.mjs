@@ -11,7 +11,7 @@ const dom = new JSDOM('<!DOCTYPE html><html lang="en"><head><title></title></hea
 Object.assign(globalThis, { window: dom.window, document: dom.window.document, location: dom.window.location, origin: dom.window.origin });
 if (!Reflect.has(globalThis, 'navigator')) Object.defineProperty(globalThis, 'navigator', { value: dom.window.navigator });
 
-const out = path.join(root, 'node_modules', '.tonik-po-core.mjs');
+const out = path.join(root, 'node_modules', '.melovy-po-core.mjs');
 await build({ entryPoints: [path.join(root, 'src/po_token/core.js')], bundle: true, format: 'esm', outfile: out, logLevel: 'silent' });
 const { createMinter } = await import(pathToFileURL(out).href);
 

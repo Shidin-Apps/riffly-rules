@@ -87,11 +87,11 @@ let scriptCache = null; // { id, signatureTimestamp, code, preprocessed }
 
 async function loadPlayerScript() {
   const it = getRules().innertube;
-  const index = await tonikFetch(it.playerScriptIndexUrl, {});
+  const index = await melovyFetch(it.playerScriptIndexUrl, {});
   const m = index && index.body && index.body.match(/player\\?\/([0-9a-fA-F]{8})\\?\//);
   if (!m) throw new Error('player id not found');
   if (scriptCache && scriptCache.id === m[1]) return scriptCache;
-  const js = await tonikFetch(it.playerScriptUrlTemplate.replace('{id}', m[1]), {});
+  const js = await melovyFetch(it.playerScriptUrlTemplate.replace('{id}', m[1]), {});
   if (!js || js.status !== 200 || !js.body) throw new Error('player script fetch failed');
   const sts = js.body.match(/(?:signatureTimestamp|sts):(\d{5})/);
   scriptCache = { id: m[1], signatureTimestamp: sts ? parseInt(sts[1], 10) : undefined, code: js.body, preprocessed: null };
@@ -107,7 +107,7 @@ function solve(script, requests) {
   const input = script.preprocessed
     ? { type: 'preprocessed', preprocessed_player: script.preprocessed, requests }
     : { type: 'player', player: script.code, requests, output_preprocessed: true };
-  const out = globalThis.__tonikSolver(input);
+  const out = globalThis.__melovySolver(input);
   if (!out || out.type === 'error') throw new Error('solver: ' + (out && out.error));
   if (out.preprocessed_player) {
     script.preprocessed = out.preprocessed_player;
@@ -194,7 +194,7 @@ export async function resolve(json, opts) {
     try {
       let manifestUrl = p.hlsManifestUrl;
       if (o.poToken) manifestUrl = manifestUrl.replace(/\/?$/, '') + '/pot/' + o.poToken;
-      const res = await tonikFetch(manifestUrl, { headers: { 'User-Agent': clientRules.userAgent || '' } });
+      const res = await melovyFetch(manifestUrl, { headers: { 'User-Agent': clientRules.userAgent || '' } });
       if (res && res.status === 200 && res.body) {
         const audio = pickHlsAudio(res.body, o.maxKbps);
         if (audio) return done('hls', audio, { mime: 'application/x-mpegURL' });

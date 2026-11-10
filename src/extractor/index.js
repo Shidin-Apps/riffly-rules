@@ -17,7 +17,7 @@ const parsers = {
   player: parsePlayer,
 };
 
-const Tonik = {
+const Melovy = {
   version: 1,
   configure(rulesJson) {
     setRules(typeof rulesJson === 'string' ? JSON.parse(rulesJson) : rulesJson);
@@ -46,4 +46,4 @@ const Tonik = {
   _pickHlsAudio: pickHlsAudio,
 };
 
-globalThis.Tonik = Tonik;
+globalThis.Melovy = Melovy;

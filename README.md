@@ -24,7 +24,8 @@ hard-codes it.
 
 Every commit is made as `Shidin <shidin@shidin.com>`; no personal name or e-mail
 belongs in this repo, in commits or in files. `publish.sh` forces that identity for
-its own commits. Before committing by hand in a fresh clone:
+its own commits, and pushes go through the project's GitHub account, never a
+personal one. Before committing by hand in a fresh clone:
 
 ```
 git config user.name "Shidin"

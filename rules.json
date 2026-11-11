@@ -227,7 +227,7 @@
     "summaryUrlTemplate": "https://{lang}.wikipedia.org/api/rest_v1/page/summary/{title}"
   },
   "webplayer": {
-    "origin": "https://mahmutersoy.github.io",
+    "origin": "https://shidin-apps.github.io",
     "iframeApiUrl": "https://www.youtube.com/iframe_api",
     "playerVars": {
       "playsinline": 1,

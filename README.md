@@ -15,6 +15,22 @@ here so a format change never needs an App Store release. Design: `../docs/TECH.
 `extractor.js` and `po_token.html` are build outputs but are committed, because
 jsDelivr serves straight from the repository.
 
+## Hosting and identity
+
+The repo is `Shidin-Apps/riffly-rules` (public). The app reads
+`https://cdn.jsdelivr.net/gh/Shidin-Apps/riffly-rules@main/latest.json` and then the
+files at `@v<version>`; `publish.sh` takes the slug from `origin`, so nothing here
+hard-codes it.
+
+Every commit is made as `Shidin <shidin@shidin.com>`; no personal name or e-mail
+belongs in this repo, in commits or in files. `publish.sh` forces that identity for
+its own commits. Before committing by hand in a fresh clone:
+
+```
+git config user.name "Shidin"
+git config user.email "shidin@shidin.com"
+```
+
 ## Layout
 
 ```

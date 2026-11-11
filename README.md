@@ -32,13 +32,19 @@ npm run capture       re-record fixtures from the live API
 npm run probe         live check: which player client yields a playable audio URL
 node tests/pot.mjs    live check of the PO token + cipher path (jsdom)
 ./sign.sh <version>   test, then write a signed latest.json (key in ~/.riffly/, never in the repo)
+./publish.sh          commit, tag, push, purge jsDelivr
 ```
 
 ## Releasing
 
 1. Change `src/` or `rules.json`, run `npm test` and `npm run probe`.
 2. `./sign.sh <next version> [minAppBuild]`
-3. Commit, `git tag v<version>`, push with tags. The app picks it up within a day
+3. `./publish.sh ["commit message"]` commits, tags `v<version>`, pushes, then purges
+   the jsDelivr cache for `@main/latest.json` and every served file the push changed
+   (at `@main` and `@v<version>`), logging each result and the tag the CDN serves
+   afterwards. It refuses to run when `latest.json` is stale or the tag already holds
+   different files. Exit code 2 means the push went through but a purge did not;
+   re-running only repeats the purge. The app picks the release up within a day
    (or immediately after three consecutive parse failures).
 
 ## Extractor contract (called from Swift)

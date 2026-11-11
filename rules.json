@@ -227,12 +227,34 @@
     "summaryUrlTemplate": "https://{lang}.wikipedia.org/api/rest_v1/page/summary/{title}"
   },
   "webplayer": {
-    "blockList": [],
+    "origin": "https://mahmutersoy.github.io",
+    "iframeApiUrl": "https://www.youtube.com/iframe_api",
+    "playerVars": {
+      "playsinline": 1,
+      "controls": 0,
+      "rel": 0,
+      "fs": 0,
+      "disablekb": 1,
+      "iv_load_policy": 3,
+      "enablejsapi": 1
+    },
+    "tickMilliseconds": 500,
+    "blockList": [
+      { "trigger": { "url-filter": "^https?://([^/]+\\.)?doubleclick\\.net[:/]" }, "action": { "type": "block" } },
+      { "trigger": { "url-filter": "^https?://([^/]+\\.)?googleadservices\\.com[:/]" }, "action": { "type": "block" } },
+      { "trigger": { "url-filter": "^https?://([^/]+\\.)?googlesyndication\\.com[:/]" }, "action": { "type": "block" } },
+      { "trigger": { "url-filter": "^https?://([^/]+\\.)?youtube\\.com/pagead/" }, "action": { "type": "block" } },
+      { "trigger": { "url-filter": "^https?://([^/]+\\.)?youtube\\.com/ptracking" }, "action": { "type": "block" } },
+      { "trigger": { "url-filter": "^https?://([^/]+\\.)?youtube\\.com/api/stats/ads" }, "action": { "type": "block" } }
+    ],
     "skipSelectors": [
       ".ytp-ad-skip-button",
       ".ytp-ad-skip-button-modern",
       ".ytp-ad-overlay-close-button"
-    ]
+    ],
+    "adShowingSelector": ".ad-showing video",
+    "adPlaybackRate": 16,
+    "skipIntervalMilliseconds": 500
   },
   "messages": {
     "catalogFormatChanged": "YouTube changed its catalog format. An update is on the way.",

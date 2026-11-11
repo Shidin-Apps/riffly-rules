@@ -1,11 +1,11 @@
 {
-  "version": 6,
-  "tag": "v6",
+  "version": 7,
+  "tag": "v7",
   "minAppBuild": 1,
   "files": {
-    "extractor.js": "044960d0429fc4cee7bd2960e04b0455618813c43ea3ebf6fb999f1a6962a5f2",
+    "extractor.js": "373be3d4541eb0ea8d34192f7e8f85d947e8c7220aff7aacb283d173823579b4",
     "po_token.html": "79601049f3b9794dc82415e17014cdc6c5d54221075ef620d74feac56ba3c052",
-    "rules.json": "0b61aefd78eaca75e75f7c6dca95e20399c928968264b40208aa574a4d07fc5e"
+    "rules.json": "b273165b0244f858ee600792e77cecbb0d36babcb34944b9e65771f1cd951874"
   },
-  "sig": "IraZK2Oez8nAKYI7sNCdJflt6v1gKVFBz/m7NpT1fpq+6JxPrLiY/pJFuinkn/86+E5svISx9J/j47ttfxmjBQ=="
+  "sig": "i9iGHWN/XSgXazby1reMw6MS9M4MRdcNPSS2tr/rA5TPptumuyxwnpwWcwYk9ZNeDuPkSQ5AsHGnJNcdm73OBA=="
 }

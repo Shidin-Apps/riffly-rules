@@ -241,3 +241,68 @@ test('account: request + parse (signed in / signed out)', () => {
   assert.equal(out.signedIn, false);
   assert.equal(out.datasyncId, undefined);
 });
+
+test('web player page: generated from rules, bridge contract, skip script', async () => {
+  const { JSDOM } = await import('jsdom');
+  const { rules } = await import('./lib.mjs');
+  const out = JSON.parse(T.webPlayerPage());
+  assert.equal(out.ok, true);
+  assert.equal(out.origin, rules.webplayer.origin);
+  assert.ok(out.html.includes(rules.webplayer.iframeApiUrl));
+  for (const s of rules.webplayer.skipSelectors) assert.ok(out.userScript.includes(s));
+  assert.doesNotThrow(() => new Function(out.userScript.replace('setInterval(sweep,cfg.every);', '')));
+
+  // Run the page against a fake IFrame API and check both directions of the bridge.
+  const messages = [];
+  const calls = [];
+  const dom = new JSDOM(out.html, { runScripts: 'dangerously', url: rules.webplayer.origin + '/', beforeParse(window) {
+    window.webkit = { messageHandlers: { rifflyPlayer: { postMessage: (m) => messages.push(JSON.parse(JSON.stringify(m))) } } };
+  } });
+  const w = dom.window;
+  assert.equal(w.document.querySelector('script[src]').src, rules.webplayer.iframeApiUrl);
+  let events = null;
+  let options = null;
+  w.YT = { Player: function (id, opts) {
+    options = opts; events = opts.events;
+    this.loadVideoById = (a) => calls.push(['load', a.videoId, a.startSeconds]);
+    this.cueVideoById = (a) => calls.push(['cue', a.videoId, a.startSeconds]);
+    this.playVideo = () => calls.push(['play']);
+    this.pauseVideo = () => calls.push(['pause']);
+    this.seekTo = (s) => calls.push(['seek', s]);
+    this.stopVideo = () => calls.push(['stop']);
+    this.getCurrentTime = () => 12.5;
+    this.getDuration = () => 200;
+  } };
+  // Commands before the player is ready are held, the latest load wins.
+  w.RifflyPlayer.load('aaaaaaaaaaa', 0, true);
+  w.RifflyPlayer.load('bbbbbbbbbbb', 30, false);
+  w.onYouTubeIframeAPIReady();
+  assert.equal(options.playerVars.origin, rules.webplayer.origin);
+  assert.equal(options.playerVars.playsinline, 1);
+  events.onReady();
+  assert.deepEqual(messages[0], { type: 'ready' });
+  assert.deepEqual(calls, [['cue', 'bbbbbbbbbbb', 30]]);
+  w.RifflyPlayer.play(); w.RifflyPlayer.seek(42); w.RifflyPlayer.pause(); w.RifflyPlayer.stop();
+  assert.deepEqual(calls.slice(1), [['play'], ['seek', 42], ['pause'], ['stop']]);
+  events.onStateChange({ data: 1 });
+  assert.deepEqual(messages.slice(-2), [{ type: 'time', current: 12.5, duration: 200 }, { type: 'state', state: 'playing' }]);
+  events.onStateChange({ data: 0 });
+  assert.equal(messages.at(-1).state, 'ended');
+  events.onStateChange({ data: 99 });
+  assert.equal(messages.at(-1).state, 'idle');
+  events.onError({ data: 150 });
+  assert.deepEqual(messages.at(-1), { type: 'error', code: 150, reason: 'embedding disabled' });
+  w.close();
+});
+
+test('web player page: unavailable without webplayer rules', async () => {
+  const { rules } = await import('./lib.mjs');
+  const bare = JSON.parse(JSON.stringify(rules));
+  bare.webplayer = { blockList: [], skipSelectors: [] };
+  T.configure(JSON.stringify(bare));
+  try {
+    assert.equal(JSON.parse(T.webPlayerPage()).ok, false);
+  } finally {
+    T.configure(JSON.stringify(rules));
+  }
+});

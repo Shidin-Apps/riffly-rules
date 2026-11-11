@@ -3,6 +3,7 @@ import { requests } from './requests.js';
 import * as P from './parsers.js';
 import { importList, parseSpotifyEmbed, parseMusi } from './imports.js';
 import { parsePlayer, resolve, webPlayerInfo, pickHlsAudio } from './player.js';
+import { webPlayerPage } from './webplayer.js';
 
 const parsers = {
   home: P.parseHome,
@@ -51,6 +52,10 @@ const Riffly = {
   // -> Promise<JSON string>: {ok, source, name, tracks:[...], reason?}
   importList(url) {
     return importList(url).then((r) => JSON.stringify(r));
+  },
+  // -> JSON string: {ok, origin, html, userScript} or {ok:false, reason}
+  webPlayerPage() {
+    return JSON.stringify(webPlayerPage());
   },
   _pickHlsAudio: pickHlsAudio,
 };

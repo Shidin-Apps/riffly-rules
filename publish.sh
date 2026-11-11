@@ -10,6 +10,8 @@ cd "$(dirname "$0")"
 
 SERVED="latest.json rules.json extractor.js po_token.html"
 BRANCH=main
+# Every commit in this repo is made under the project identity, never a personal one.
+GIT_ID=(-c user.name=Shidin -c user.email=shidin@shidin.com)
 
 TAG="$(node -p 'JSON.parse(require("fs").readFileSync("latest.json","utf8")).tag')"
 SLUG="$(git remote get-url origin | sed -E 's#^(https://github\.com/|git@github\.com:)##; s#\.git$##')"
@@ -41,7 +43,7 @@ fi
 git add -A
 if ! git diff --cached --quiet; then
   if [ "$NEW_TAG" = 1 ]; then DEFAULT_MSG="chore: release $TAG"; else DEFAULT_MSG="chore: update tooling"; fi
-  git commit --quiet -m "${1:-$DEFAULT_MSG}"
+  git "${GIT_ID[@]}" commit --quiet -m "${1:-$DEFAULT_MSG}"
 fi
 [ "$NEW_TAG" = 0 ] || git tag "$TAG"
 

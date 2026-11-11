@@ -1,11 +1,11 @@
 {
-  "version": 5,
-  "tag": "v5",
+  "version": 6,
+  "tag": "v6",
   "minAppBuild": 1,
   "files": {
     "extractor.js": "044960d0429fc4cee7bd2960e04b0455618813c43ea3ebf6fb999f1a6962a5f2",
     "po_token.html": "79601049f3b9794dc82415e17014cdc6c5d54221075ef620d74feac56ba3c052",
     "rules.json": "0b61aefd78eaca75e75f7c6dca95e20399c928968264b40208aa574a4d07fc5e"
   },
-  "sig": "iYtrlOqlH80XJFcnf5Hf9Ah8wDR7i3cjpKyaxPLhk/MyZYXC1X+Kx0zNUUTs7X8zRXALDslOqyq/fMJO+z5PCQ=="
+  "sig": "IraZK2Oez8nAKYI7sNCdJflt6v1gKVFBz/m7NpT1fpq+6JxPrLiY/pJFuinkn/86+E5svISx9J/j47ttfxmjBQ=="
 }

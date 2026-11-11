@@ -1,3 +1,4 @@
+import { getRules } from './state.js';
 import { nav, text, thumbs, compact, findKey, findAll } from './util.js';
 import { items, anyItem, listItem, parseRuns, continuationOf, pageType } from './items.js';
 
@@ -331,4 +332,18 @@ export function parseLyrics(json) {
   const shelfNode = findKey(json, 'musicDescriptionShelfRenderer');
   if (!shelfNode) return { text: '' };
   return compact({ text: text(shelfNode.description), source: text(shelfNode.footer) }) ;
+}
+
+// account/account_menu -> {signedIn, name, email, handle, datasyncId}. Every field is optional:
+// a signed-out response simply has no active account header.
+export function parseAccount(json) {
+  const header = findKey(json, 'activeAccountHeaderRenderer');
+  const datasyncId = nav(json, getRules().account.datasyncIdPath);
+  return compact({
+    signedIn: !!header,
+    name: header ? text(header.accountName) : undefined,
+    email: header ? text(header.email) : undefined,
+    handle: header ? text(header.channelHandle) : undefined,
+    datasyncId: typeof datasyncId === 'string' && datasyncId ? datasyncId : undefined,
+  });
 }

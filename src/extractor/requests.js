@@ -60,6 +60,15 @@ export const requests = {
   lyrics(a) {
     return { endpoint: 'browse', body: { browseId: a.browseId } };
   },
+  // Signed-in only: who is this (name, e-mail, datasync id).
+  account() {
+    return { endpoint: 'account/account_menu', body: {} };
+  },
+  // Signed-in only: the user's own playlists.
+  libraryPlaylists(a) {
+    if (a.continuation) return continuation('browse', a.continuation);
+    return { endpoint: 'browse', body: { browseId: getRules().account.libraryPlaylistsBrowseId } };
+  },
   player(a) {
     const body = { videoId: a.videoId, contentCheckOk: true, racyCheckOk: true };
     const playback = { html5Preference: 'HTML5_PREF_WANTS' };

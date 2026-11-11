@@ -15,6 +15,8 @@ const parsers = {
   playlist: P.parsePlaylist,
   next: P.parseNext,
   lyrics: P.parseLyrics,
+  account: P.parseAccount,
+  libraryPlaylists: P.parseBrowse,
   player: parsePlayer,
   spotifyEmbed: parseSpotifyEmbed,
   musi: parseMusi,

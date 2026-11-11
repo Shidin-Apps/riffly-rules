@@ -128,6 +128,15 @@ var jsc=function(e,n){"use strict";function t(e,n){if(Array.isArray(n))return!!A
     lyrics(a) {
       return { endpoint: "browse", body: { browseId: a.browseId } };
     },
+    // Signed-in only: who is this (name, e-mail, datasync id).
+    account() {
+      return { endpoint: "account/account_menu", body: {} };
+    },
+    // Signed-in only: the user's own playlists.
+    libraryPlaylists(a) {
+      if (a.continuation) return continuation("browse", a.continuation);
+      return { endpoint: "browse", body: { browseId: getRules().account.libraryPlaylistsBrowseId } };
+    },
     player(a) {
       const body = { videoId: a.videoId, contentCheckOk: true, racyCheckOk: true };
       const playback = { html5Preference: "HTML5_PREF_WANTS" };
@@ -680,6 +689,17 @@ var jsc=function(e,n){"use strict";function t(e,n){if(Array.isArray(n))return!!A
     if (!shelfNode) return { text: "" };
     return compact({ text: text(shelfNode.description), source: text(shelfNode.footer) });
   }
+  function parseAccount(json) {
+    const header2 = findKey(json, "activeAccountHeaderRenderer");
+    const datasyncId = nav(json, getRules().account.datasyncIdPath);
+    return compact({
+      signedIn: !!header2,
+      name: header2 ? text(header2.accountName) : void 0,
+      email: header2 ? text(header2.email) : void 0,
+      handle: header2 ? text(header2.channelHandle) : void 0,
+      datasyncId: typeof datasyncId === "string" && datasyncId ? datasyncId : void 0
+    });
+  }
 
   // src/extractor/imports.js
   function fill(template, vars) {
@@ -984,6 +1004,8 @@ var jsc=function(e,n){"use strict";function t(e,n){if(Array.isArray(n))return!!A
     playlist: parsePlaylist,
     next: parseNext,
     lyrics: parseLyrics,
+    account: parseAccount,
+    libraryPlaylists: parseBrowse,
     player: parsePlayer,
     spotifyEmbed: parseSpotifyEmbed,
     musi: parseMusi

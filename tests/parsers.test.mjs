@@ -223,3 +223,21 @@ test('lenient: garbage in, empty out, no throw', () => {
     }
   }
 });
+
+test('account: request + parse (signed in / signed out)', () => {
+  const req = JSON.parse(T.request('account', '{}'));
+  assert.equal(req.endpoint, 'account/account_menu');
+  const lib = JSON.parse(T.request('libraryPlaylists', '{}'));
+  assert.equal(lib.body.browseId, 'FEmusic_liked_playlists');
+  const signedIn = {
+    responseContext: { mainAppWebResponseContext: { datasyncId: '1234567890||', loggedOut: false } },
+    actions: [{ openPopupAction: { popup: { multiPageMenuRenderer: { header: { activeAccountHeaderRenderer: {
+      accountName: { runs: [{ text: 'Test User' }] }, email: { simpleText: 'test@example.com' }, channelHandle: { runs: [{ text: '@test' }] },
+    } } } } } }],
+  };
+  const a = JSON.parse(T.parse('account', JSON.stringify(signedIn), '{}'));
+  assert.deepEqual(a, { signedIn: true, name: 'Test User', email: 'test@example.com', handle: '@test', datasyncId: '1234567890||' });
+  const out = JSON.parse(T.parse('account', JSON.stringify({ responseContext: {} }), '{}'));
+  assert.equal(out.signedIn, false);
+  assert.equal(out.datasyncId, undefined);
+});

@@ -10,6 +10,13 @@
       "ANDROID_VR",
       "WEB_REMIX"
     ],
+    "videoOrder": [
+      "VISIONOS",
+      "ANDROID_VR",
+      "TV_SIMPLY",
+      "WEB_REMIX",
+      "IOS"
+    ],
     "coldStartOrder": [
       "VISIONOS",
       "IOS",

@@ -78,7 +78,9 @@ var jsc=function(e,n){"use strict";function t(e,n){if(Array.isArray(n))return!!A
   var requests = {
     home(a) {
       if (a.continuation) return continuation("browse", a.continuation);
-      return { endpoint: "browse", body: { browseId: getRules().innertube.browse.home } };
+      const body = { browseId: getRules().innertube.browse.home };
+      if (a.params) body.params = a.params;
+      return { endpoint: "browse", body };
     },
     charts(a) {
       const body = { browseId: getRules().innertube.browse.charts };
@@ -461,9 +463,30 @@ var jsc=function(e,n){"use strict";function t(e,n){if(Array.isArray(n))return!!A
     }
     return out;
   }
+  function homeChips(root) {
+    const home = getRules().innertube.browse.home;
+    const out = [];
+    const chips = nav(root, ["header", "chipCloudRenderer", "chips"]);
+    if (!Array.isArray(chips)) return void 0;
+    for (const c of chips) {
+      const r = c && c.chipCloudChipRenderer;
+      if (!r) continue;
+      const ep = nav(r, ["navigationEndpoint", "browseEndpoint"]);
+      const title = text(r.text);
+      if (!ep || ep.browseId !== home || !ep.params || !title) continue;
+      out.push({ title, params: ep.params });
+    }
+    return out.length ? out : void 0;
+  }
   function parseHome(json) {
     const root = tabSections(json);
-    return compact({ shelves: shelves(nav(root, ["contents"])), continuation: continuationOf(root) });
+    let chips;
+    try {
+      chips = homeChips(root);
+    } catch (e) {
+      chips = void 0;
+    }
+    return compact({ shelves: shelves(nav(root, ["contents"])), chips, continuation: continuationOf(root) });
   }
   function countryCode(entityKey) {
     if (!entityKey) return null;
@@ -820,6 +843,19 @@ var jsc=function(e,n){"use strict";function t(e,n){if(Array.isArray(n))return!!A
         height: f.height
       }));
     }
+    const muxed = [];
+    for (const f of sd.formats || []) {
+      if (!f || typeof f.mimeType !== "string") continue;
+      muxed.push(compact({
+        itag: f.itag,
+        mime: f.mimeType,
+        bitrate: f.bitrate,
+        contentLength: f.contentLength ? parseInt(f.contentLength, 10) : void 0,
+        url: f.url,
+        signatureCipher: f.signatureCipher || f.cipher,
+        height: f.height
+      }));
+    }
     const reason = typeof ps.reason === "string" ? ps.reason : text(ps.reason);
     const sub = text(nav(ps, ["errorScreen", "playerErrorMessageRenderer", "subreason"]));
     return compact({
@@ -838,8 +874,18 @@ var jsc=function(e,n){"use strict";function t(e,n){if(Array.isArray(n))return!!A
       expiresInSeconds: sd.expiresInSeconds ? parseInt(sd.expiresInSeconds, 10) : void 0,
       hlsManifestUrl: sd.hlsManifestUrl,
       hasSabr: sd.serverAbrStreamingUrl ? true : void 0,
-      formats
+      formats,
+      muxed: muxed.length ? muxed : void 0
     });
+  }
+  function selectMuxed(muxed, opts) {
+    const maxHeight = opts && opts.maxHeight || 720;
+    const usable = (muxed || []).filter((f) => /^video\/mp4/.test(f.mime) && /avc1/.test(f.mime) && /mp4a/.test(f.mime) && (f.url || f.signatureCipher));
+    if (!usable.length) return null;
+    const sorted = usable.slice().sort((a, b) => (a.height || 0) - (b.height || 0));
+    let pick = sorted[0];
+    for (const f of sorted) if ((f.height || 0) <= maxHeight) pick = f;
+    return pick;
   }
   function selectAudio(formats, opts) {
     const maxKbps = opts && opts.maxKbps || 128;
@@ -960,6 +1006,32 @@ var jsc=function(e,n){"use strict";function t(e,n){if(Array.isArray(n))return!!A
       return { ok: true, kind, url, expiresInSeconds: expires, expireAt: expire ? parseInt(expire, 10) : void 0, userAgent: clientRules.userAgent, ...base, ...extra || {} };
     };
     const errors = [];
+    if (o.wantVideo) {
+      if (p.hlsManifestUrl && o.allowHls !== false) {
+        try {
+          let manifestUrl = p.hlsManifestUrl;
+          if (o.poToken) manifestUrl = manifestUrl.replace(/\/?$/, "") + "/pot/" + o.poToken;
+          const res = await rifflyFetch(manifestUrl, { headers: { "User-Agent": clientRules.userAgent || "" } });
+          if (res && res.status === 200 && res.body && res.body.indexOf("#EXT-X-STREAM-INF") >= 0) {
+            return done("hls", manifestUrl, { mime: "application/x-mpegURL", hasVideo: true });
+          }
+          errors.push(res && res.status === 200 ? "hls manifest has no video variants" : "hls manifest http " + (res && res.status));
+        } catch (e) {
+          errors.push("hls: " + e);
+        }
+      }
+      const video = selectMuxed(p.muxed, o);
+      if (video) {
+        try {
+          let url = video.url && !clientRules.requiresJsPlayer ? video.url : await decipherUrl(video);
+          if (o.poToken) url = setQueryParam(url, "pot", o.poToken);
+          return done("direct", url, { itag: video.itag, mime: video.mime, bitrate: video.bitrate, contentLength: video.contentLength, height: video.height, hasVideo: true });
+        } catch (e) {
+          errors.push("cipher: " + e);
+        }
+      }
+      return { ok: false, status: "NO_VIDEO_STREAM", reason: errors.join("; ") || "no playable video format", ...base };
+    }
     if (pick && pick.url && !clientRules.requiresJsPlayer) {
       let url = pick.url;
       if (o.poToken) url = setQueryParam(url, "pot", o.poToken);

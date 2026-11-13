@@ -63,9 +63,30 @@ function shelves(list, ctx) {
   return out;
 }
 
+// Mood / genre chips above the home shelves. Only chips that reload the home feed
+// with a filter are kept: a chip that leads somewhere else (podcasts) or that
+// clears the current filter (no params) is not a filter the app can apply.
+function homeChips(root) {
+  const home = getRules().innertube.browse.home;
+  const out = [];
+  const chips = nav(root, ['header', 'chipCloudRenderer', 'chips']);
+  if (!Array.isArray(chips)) return undefined;
+  for (const c of chips) {
+    const r = c && c.chipCloudChipRenderer;
+    if (!r) continue;
+    const ep = nav(r, ['navigationEndpoint', 'browseEndpoint']);
+    const title = text(r.text);
+    if (!ep || ep.browseId !== home || !ep.params || !title) continue;
+    out.push({ title, params: ep.params });
+  }
+  return out.length ? out : undefined;
+}
+
 export function parseHome(json) {
   const root = tabSections(json);
-  return compact({ shelves: shelves(nav(root, ['contents'])), continuation: continuationOf(root) });
+  let chips;
+  try { chips = homeChips(root); } catch (e) { chips = undefined; }
+  return compact({ shelves: shelves(nav(root, ['contents'])), chips, continuation: continuationOf(root) });
 }
 
 function countryCode(entityKey) {

@@ -172,6 +172,59 @@ test('player parse + audio selection', async () => {
   assert.ok(blocked.reason);
 });
 
+test('video mode: hls master, muxed mp4, or a clear "no video"', async () => {
+  const master = ['#EXTM3U', '#EXT-X-MEDIA:URI="https://x/234",TYPE=AUDIO,GROUP-ID="234",DEFAULT=YES', '#EXT-X-STREAM-INF:BANDWIDTH=1,AUDIO="234"', 'https://x/v'].join('\n');
+  const fetched = [];
+  const V = loadExtractor(async (url, opts) => { fetched.push({ url, opts }); return { status: 200, body: master }; });
+  const hls = JSON.parse(await V.resolve(raw('player_visionos'), JSON.stringify({ client: 'VISIONOS', wantVideo: true, poToken: 'TOKEN' })));
+  assert.equal(hls.ok, true);
+  assert.equal(hls.kind, 'hls');
+  assert.equal(hls.hasVideo, true);
+  assert.match(hls.url, /\/pot\/TOKEN$/);
+  assert.equal(fetched.length, 1);
+  assert.ok(fetched[0].opts.headers['User-Agent']);
+
+  // A manifest without video variants is not a video stream.
+  const A = loadExtractor(async () => ({ status: 200, body: '#EXTM3U\n#EXT-X-MEDIA:URI="https://x/234",TYPE=AUDIO,GROUP-ID="234"' }));
+  const audioOnly = JSON.parse(await A.resolve(raw('player_visionos'), JSON.stringify({ client: 'VISIONOS', wantVideo: true })));
+  assert.equal(audioOnly.ok, false);
+  assert.equal(audioOnly.status, 'NO_VIDEO_STREAM');
+
+  const muxed = JSON.parse(await T.resolve(raw('player_android_vr'), JSON.stringify({ client: 'ANDROID_VR', wantVideo: true })));
+  assert.equal(muxed.ok, true);
+  assert.equal(muxed.kind, 'direct');
+  assert.equal(muxed.itag, 18);
+  assert.equal(muxed.hasVideo, true);
+  assert.equal(muxed.height, 360);
+
+  const none = JSON.parse(await T.resolve(raw('player_ios'), JSON.stringify({ client: 'IOS', wantVideo: true })));
+  assert.equal(none.ok, false);
+  assert.equal(none.status, 'NO_VIDEO_STREAM');
+
+  // The audio path never hands out a video stream.
+  const audio = JSON.parse(await T.resolve(raw('player_android_vr'), JSON.stringify({ client: 'ANDROID_VR', maxKbps: 128 })));
+  assert.equal(audio.hasVideo, undefined);
+  assert.match(audio.mime, /^audio\//);
+});
+
+test('home chips: only filters of the home feed, request carries params', () => {
+  const r = parse('home', 'home');
+  assert.equal(r.chips.length, 10);
+  assert.ok(r.chips.some((c) => c.title === 'Feel good'));
+  for (const c of r.chips) assert.ok(c.title && c.params);
+  const doc = JSON.parse(raw('home'));
+  const list = doc.contents.singleColumnBrowseResultsRenderer.tabs[0].tabRenderer.content.sectionListRenderer.header.chipCloudRenderer.chips;
+  // A chip that leads to another page (podcasts) and one that clears the filter are dropped.
+  list.unshift({ chipCloudChipRenderer: { text: { runs: [{ text: 'Podcasts' }] }, navigationEndpoint: { browseEndpoint: { browseId: 'FEmusic_non_music_audio' } } } });
+  list.push({ chipCloudChipRenderer: { text: { runs: [{ text: 'Relax' }] }, isSelected: true, navigationEndpoint: { browseEndpoint: { browseId: 'FEmusic_home' } } } });
+  const filtered = JSON.parse(T.parse('home', JSON.stringify(doc), '{}'));
+  assert.equal(filtered.chips.length, 10);
+  assert.ok(!filtered.chips.some((c) => c.title === 'Podcasts'));
+  const req = JSON.parse(T.request('home', JSON.stringify({ params: r.chips[0].params })));
+  assert.deepEqual(req.body, { browseId: 'FEmusic_home', params: r.chips[0].params });
+  assert.equal(JSON.parse(T.request('home', '{}')).body.params, undefined);
+});
+
 test('hls audio rendition choice', () => {
   const m = [
     '#EXTM3U',

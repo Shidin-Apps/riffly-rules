@@ -1,5 +1,6 @@
 // Player response handling: playability, audio format selection, HLS audio
-// rendition lookup and (for web clients) signature / n-parameter solving.
+// rendition lookup, video streams for video mode (HLS master or muxed MP4) and
+// (for web clients) signature / n-parameter solving.
 import { nav, text, thumbs, compact } from './util.js';
 import { getRules } from './state.js';
 
@@ -23,6 +24,20 @@ export function parsePlayer(json) {
       height: f.height,
     }));
   }
+  // Progressive files that carry audio and video together (video mode only).
+  const muxed = [];
+  for (const f of sd.formats || []) {
+    if (!f || typeof f.mimeType !== 'string') continue;
+    muxed.push(compact({
+      itag: f.itag,
+      mime: f.mimeType,
+      bitrate: f.bitrate,
+      contentLength: f.contentLength ? parseInt(f.contentLength, 10) : undefined,
+      url: f.url,
+      signatureCipher: f.signatureCipher || f.cipher,
+      height: f.height,
+    }));
+  }
   const reason = typeof ps.reason === 'string' ? ps.reason : text(ps.reason);
   const sub = text(nav(ps, ['errorScreen', 'playerErrorMessageRenderer', 'subreason']));
   return compact({
@@ -42,7 +57,19 @@ export function parsePlayer(json) {
     hlsManifestUrl: sd.hlsManifestUrl,
     hasSabr: sd.serverAbrStreamingUrl ? true : undefined,
     formats,
+    muxed: muxed.length ? muxed : undefined,
   });
+}
+
+// AVPlayer plays H.264 + AAC in MP4; the tallest one that fits the ceiling wins.
+export function selectMuxed(muxed, opts) {
+  const maxHeight = (opts && opts.maxHeight) || 720;
+  const usable = (muxed || []).filter((f) => /^video\/mp4/.test(f.mime) && /avc1/.test(f.mime) && /mp4a/.test(f.mime) && (f.url || f.signatureCipher));
+  if (!usable.length) return null;
+  const sorted = usable.slice().sort((a, b) => (a.height || 0) - (b.height || 0));
+  let pick = sorted[0];
+  for (const f of sorted) if ((f.height || 0) <= maxHeight) pick = f;
+  return pick;
 }
 
 // AVPlayer plays AAC-in-MP4 natively; WebM/Opus is ignored on purpose.
@@ -184,6 +211,34 @@ export async function resolve(json, opts) {
     return { ok: true, kind, url, expiresInSeconds: expires, expireAt: expire ? parseInt(expire, 10) : undefined, userAgent: clientRules.userAgent, ...base, ...(extra || {}) };
   };
   const errors = [];
+
+  if (o.wantVideo) {
+    // Video mode: an HLS master playlist (adaptive, audio + video), else a muxed MP4.
+    if (p.hlsManifestUrl && o.allowHls !== false) {
+      try {
+        let manifestUrl = p.hlsManifestUrl;
+        if (o.poToken) manifestUrl = manifestUrl.replace(/\/?$/, '') + '/pot/' + o.poToken;
+        const res = await rifflyFetch(manifestUrl, { headers: { 'User-Agent': clientRules.userAgent || '' } });
+        if (res && res.status === 200 && res.body && res.body.indexOf('#EXT-X-STREAM-INF') >= 0) {
+          return done('hls', manifestUrl, { mime: 'application/x-mpegURL', hasVideo: true });
+        }
+        errors.push(res && res.status === 200 ? 'hls manifest has no video variants' : 'hls manifest http ' + (res && res.status));
+      } catch (e) {
+        errors.push('hls: ' + e);
+      }
+    }
+    const video = selectMuxed(p.muxed, o);
+    if (video) {
+      try {
+        let url = video.url && !clientRules.requiresJsPlayer ? video.url : await decipherUrl(video);
+        if (o.poToken) url = setQueryParam(url, 'pot', o.poToken);
+        return done('direct', url, { itag: video.itag, mime: video.mime, bitrate: video.bitrate, contentLength: video.contentLength, height: video.height, hasVideo: true });
+      } catch (e) {
+        errors.push('cipher: ' + e);
+      }
+    }
+    return { ok: false, status: 'NO_VIDEO_STREAM', reason: errors.join('; ') || 'no playable video format', ...base };
+  }
 
   if (pick && pick.url && !clientRules.requiresJsPlayer) {
     let url = pick.url;

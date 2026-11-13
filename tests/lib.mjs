@@ -8,10 +8,11 @@ export const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 export const rules = JSON.parse(fs.readFileSync(path.join(root, 'rules.json'), 'utf8'));
 export const fixturesDir = path.join(root, 'tests', 'fixtures');
 
-export function loadExtractor() {
+// `fetchImpl` replaces the network for tests that need a canned answer (HLS manifests).
+export function loadExtractor(fetchImpl = nodeRifflyFetch) {
   const code = fs.readFileSync(path.join(root, 'extractor.js'), 'utf8');
-  const sandbox = { rifflyFetch: nodeRifflyFetch, console };
-  new Function('globalThis', 'rifflyFetch', 'console', code)(sandbox, nodeRifflyFetch, console);
+  const sandbox = { rifflyFetch: fetchImpl, console };
+  new Function('globalThis', 'rifflyFetch', 'console', code)(sandbox, fetchImpl, console);
   sandbox.Riffly.configure(JSON.stringify(rules));
   return sandbox.Riffly;
 }

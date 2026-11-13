@@ -9,7 +9,10 @@ function continuation(endpoint, token) {
 export const requests = {
   home(a) {
     if (a.continuation) return continuation('browse', a.continuation);
-    return { endpoint: 'browse', body: { browseId: getRules().innertube.browse.home } };
+    const body = { browseId: getRules().innertube.browse.home };
+    // A mood / genre chip from the home page (`chips[].params`).
+    if (a.params) body.params = a.params;
+    return { endpoint: 'browse', body };
   },
   charts(a) {
     const body = { browseId: getRules().innertube.browse.charts };
